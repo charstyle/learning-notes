@@ -300,3 +300,189 @@ export default defineComponent({
 ```
 
 ![image-20241231094225851](assets/image-20241231094225851.png)
+
+## 组件插槽
+
+在不改变子组件的前提下，给父组件中子组件区域加上想要的内容
+
+### 默认插槽
+
+在子组件加入`<slot></slot>`标签，然后在父组件的子组件标签中写想要的样式
+
+```vue
+<MyComponent :msg="parentName" @postmsg="receiveChildMsg">
+      <ul>
+        <li v-for="user in myObjectArray" :key="user.id">
+          <input type="checkbox">
+          ID: {{ user.id }} / Name: {{ user.userName }} / Age: {{ user.age }}
+        </li>
+      </ul>
+</MyComponent>
+```
+
+![image-20250102183109558](assets/image-20250102183109558.png)
+
+### 具名插槽
+
+为插槽命名
+
+```vue
+<template>
+    <div>
+        <h3>header</h3>
+        <slot name="header"></slot>
+        <hr>
+        <h3>default</h3>
+        <slot></slot>
+        <hr>
+        <h3>footer</h3>
+        <slot name="footer"></slot>
+    </div>
+</template>
+```
+
+```vue
+    <MyComponent :msg="parentName" @postmsg="receiveChildMsg">
+      <template v-slot:header>
+        this is header slot
+      </template>
+      <template #default>
+        this is default slot
+      </template>
+      <template #footer>
+        this is footer slot
+      </template>
+    </MyComponent>
+```
+
+![image-20250102184509962](assets/image-20250102184509962.png)
+
+### 动态插槽
+
+就是让父组件接收插槽名称变成一个变量，让其能被调控
+
+```vue
+<template>
+    <div>
+        <h3 v-if="$slots.header">header</h3>
+        <slot name="header"></slot>
+        <hr>
+        <h3>default</h3>
+        <slot></slot>
+        <hr>
+        <h3 v-if="$slots.footer">footer</h3>
+        <slot name="footer"></slot>
+    </div>
+</template>
+```
+
+```vue
+    <MyComponent :msg="parentName" @postmsg="receiveChildMsg">
+      <template v-slot:[slotName]>
+        this is {{ slotName }} slot
+      </template>
+      <template #default>
+        this is default slot
+      </template>
+    </MyComponent>
+    <button @click="onChangeSolt">切换插槽</button>
+```
+
+![image-20250102200943048](assets/image-20250102200943048.png)
+
+![image-20250102200952970](assets/image-20250102200952970.png)
+
+### 条件插槽
+
+就是`v-if`的使用，在动态插槽中也进行了使用`<h3 v-if="$slots.header">header</h3>`
+
+### 作用域插槽
+
+将子组件中的数据传给父组件使用
+
+```vue
+<template>
+    <div>
+        <h3>default</h3>
+        <slot :text="defaultSoltText" number="123"></slot>
+    </div>
+</template>
+```
+
+```vue
+    <MyComponent :msg="parentName" @postmsg="receiveChildMsg" v-slot="soltData">
+      {{ soltData.text }}
+      {{ soltData.number }}
+    </MyComponent>
+```
+
+![image-20250102202827996](assets/image-20250102202827996.png)
+
+### 具名作用域插槽
+
+同上，只是划分了一下而已
+
+```vue
+<template>
+    <div>
+        <h3 v-if="$slots.header">header</h3>
+        <slot name="header" text="我是header插槽内容"></slot>
+        <hr>
+        <h3>default</h3>
+        <slot :text="defaultSoltText" number="123"></slot>
+    </div>
+</template>
+```
+
+```vue
+    <MyComponent :msg="parentName" @postmsg="receiveChildMsg">
+      <template v-slot:[slotName]="soltData">
+        this is {{ slotName }} slot
+        {{ soltData.text }}
+      </template>
+      <template #default="soltData">
+        this is default slot
+        {{ soltData.text }}
+        {{ soltData.number }}
+      </template>
+    </MyComponent>
+```
+
+![image-20250102204108847](assets/image-20250102204108847.png)
+
+## reactive的使用
+
+```vue
+    {{ reactiveData1 }}
+    <br>
+    {{ reactiveData2 }}
+    <br>
+    <button @click="onChangeReactiveData1">改变</button>
+```
+
+```vbscript
+    const myReactiveData = reactive({
+      reactiveData1: 'this is reactiveData1',
+      reactiveData2: 'this is reactiveData2',
+      onChangeReactiveData1: () => {
+        myReactiveData.reactiveData1 = 'reactiveData1'
+      }
+    });
+    const reactiveDataRefs=toRefs(myReactiveData);
+
+return {
+      ...reactiveDataRefs
+    }
+```
+
+![image-20250102221943518](assets/image-20250102221943518.png)
+
+## Vue3生命周期
+
+创建阶段：`setup`
+
+挂载阶段：`onBeforeMount`、`onMounted`
+
+更新阶段：`onBeforeUpdate`、`onUpdated`
+
+销毁阶段：`onBeforeUnmount`、`onUnmounted`
